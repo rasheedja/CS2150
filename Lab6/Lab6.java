@@ -87,7 +87,7 @@ public class Lab6 extends GraphicsLab
     protected void initScene() throws Exception
     {
         // load the textures
-        groundTextures = loadTexture("Lab6/textures/grass.bmp");
+        groundTextures = loadTexture("Lab6/textures/grass.jpg");
         //skyDayTextures = loadTexture("Lab6/textures/daySky.bmp");
         skyNightTextures = loadTexture("Lab6/textures/nightSky.bmp");
 

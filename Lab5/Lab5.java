@@ -176,7 +176,7 @@ public class Lab5 extends GraphicsLab
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(sunFrontSpecular));
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, FloatBuffer.wrap(sunFrontDiffuse));
 
-            // make the moon appear glow
+            // make the moon appear to glow
             float moonFrontEmmision[] = {0.5f, 0.5f, 0.5f, 1.0f};
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_EMISSION, FloatBuffer.wrap(moonFrontEmmision));
 
