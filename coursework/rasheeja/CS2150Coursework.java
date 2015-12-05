@@ -35,8 +35,8 @@ public class CS2150Coursework extends GraphicsLab
     private final int deathStarList = 2;
     /** display list id for the sky plane */
     private final int skyList       = 3;
-    /** display list id for the fire */
-    private final int fireList      = 4;
+    /** display list id for the platform */
+    private final int platList      = 4;
 
     /** id for the death star texture */
     private Texture deathStarTexture;
@@ -94,8 +94,8 @@ public class CS2150Coursework extends GraphicsLab
         {   drawUnitPlane();
         }
         GL11.glEndList();
-        GL11.glNewList(fireList,GL11.GL_COMPILE);
-        {   drawUnitTriangle();
+        GL11.glNewList(platList,GL11.GL_COMPILE);
+        {   drawUnitFrustum(Colour.WHITE, Colour.WHITE, Colour.WHITE, Colour.WHITE, Colour.WHITE, Colour.WHITE);
         }
         GL11.glEndList();
 
@@ -184,7 +184,7 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, FloatBuffer.wrap(rocketFrontDiffuse));
 
             // position and create the cylindrical part of the rocket
-            GL11.glTranslatef(0.0f,1.0f,-10f);
+            GL11.glTranslatef(0.0f,2.0f,-10f);
             GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
             new Cylinder().draw(0.5f, 0.5f, 2.0f, 10, 10);
 
@@ -202,7 +202,7 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, FloatBuffer.wrap(rocketFrontDiffuse));
 
             // position and create the cone
-            GL11.glTranslatef(0.0f,1.0f,-10f);
+            GL11.glTranslatef(0.0f,2.0f,-10f);
             GL11.glRotatef(90.0f,-1.0f, 0.0f, 0.0f);
             new Cylinder().draw(0.5f, 0.0f, 1.0f, 10, 10);
 
@@ -222,12 +222,25 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(fireFrontDiffuse));
 
             // position and create the fire
-            GL11.glTranslatef(0.0f,1.0f,-5f);
-            GL11.glCallList(fireList);
+            GL11.glTranslatef(0.0f,0.0f,-10f);
+            GL11.glRotatef(90.0f,1.0f, 0.0f, 0.0f);
+            new Cylinder().draw(0.25f, 0.0f, 1.0f, 10, 10);
 
             GL11.glPopAttrib();
         }
         GL11.glPopMatrix();
+
+        // draw the night sky
+        GL11.glPushMatrix();
+        {
+            Colour.WHITE.submit();
+            // position and create the skyff
+            GL11.glTranslatef(0.0f,0.0f,-5f);
+            GL11.glCallList(platList);
+            GL11.glPopAttrib();
+        }
+        GL11.glPopMatrix();
+
 
 
     }
@@ -274,23 +287,76 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEnd();
     }
 
-    /**
-     * Draws a triangle with unit height and width.
-     */
-    public void drawUnitTriangle()
+    public void drawUnitFrustum(Colour near, Colour far, Colour top, Colour bottom, Colour left, Colour right)
     {
-        Vertex v1 = new Vertex( 0.0f,-0.5f, 0.0f); //middle, bottom
-        Vertex v2 = new Vertex( 0.5f, 0.5f, 0.0f); //right,  top
-        Vertex v3 = new Vertex(-0.5f, 0.5f, 0.0f); //left,   top
+        Vertex v1 = new Vertex(-0.5f,-0.5f,-0.5f); // left,  back,  bottom
+        Vertex v2 = new Vertex( 0.5f,-0.5f,-0.5f); // right, back,  bottom
+        Vertex v3 = new Vertex( 0.5f,-0.5f, 0.5f); // right, front, bottom
+        Vertex v4 = new Vertex(-0.5f,-0.5f, 0.5f); // left,  front, bottom
+        Vertex v5 = new Vertex(-0.3f, 0.5f, 0.5f); // left,  front, top
+        Vertex v6 = new Vertex(-0.3f, 0.5f,-0.5f); // left,  back,  top
+        Vertex v7 = new Vertex( 0.3f, 0.5f,-0.5f); // right, back,  top
+        Vertex v8 = new Vertex( 0.3f, 0.5f, 0.5f); // right, front, top
 
-        // draw the triangle with the vertices in the correct order
+        // draw the near face
+        near.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
-            v1.submit();
-            v2.submit();
+            v5.submit();
+            v4.submit();
             v3.submit();
+            v8.submit();
         }
         GL11.glEnd();
+
+        // draw the far face
+        far.submit();
+        GL11.glBegin(GL11.GL_POLYGON);
+        {
+            v6.submit();
+            v7.submit();
+            v2.submit();
+            v1.submit();
+        }
+
+        // draw the top face
+        top.submit();
+        GL11.glBegin(GL11.GL_POLYGON);
+        {
+            v7.submit();
+            v6.submit();
+            v5.submit();
+            v8.submit();
+        }
+
+        // draw the bottom face
+        bottom.submit();
+        GL11.glBegin(GL11.GL_POLYGON);
+        {
+            v3.submit();
+            v4.submit();
+            v1.submit();
+            v2.submit();
+        }
+
+        // draw the left face
+        left.submit();
+        GL11.glBegin(GL11.GL_POLYGON);
+        {
+            v5.submit();
+            v6.submit();
+            v1.submit();
+            v4.submit();
+        }
+        // draw the right face
+        right.submit();
+        GL11.glBegin(GL11.GL_POLYGON);
+        {
+            v7.submit();
+            v8.submit();
+            v3.submit();
+            v2.submit();
+        }
     }
 
 }
