@@ -38,6 +38,17 @@ public class CS2150Coursework extends GraphicsLab
     /** display list id for the platform */
     private final int platList      = 4;
 
+    /** the rocket's current Y offset from the scene origin. */
+    private float currentFireY = 0.0f;
+    private float currentCylinderY = 2.0f;
+    private float currentConeY = 2.0f;
+
+    /** the current size of the fire. */
+    private float currentFireSize = 0.5f;
+    private float fireMinSize = 0.5f;
+    private float fireMaxSize = 0.75f;
+    private boolean fireRising = true;
+
     /** id for the death star texture */
     private Texture deathStarTexture;
     /** id for the ground plane texture */
@@ -108,6 +119,24 @@ public class CS2150Coursework extends GraphicsLab
         //TODO: Update your scene variables here - remember to use the current animation scale value
         //        (obtained via a call to getAnimationScale()) in your modifications so that your animations
         //        can be made faster or slower depending on the machine you are working on
+
+        // change the size of the fire
+        if(fireRising && currentFireSize <= fireMaxSize)
+        {
+            currentFireSize = currentFireSize + 0.01f;
+        }
+        if(!fireRising && currentFireSize > fireMinSize)
+        {
+            currentFireSize = currentFireSize - 0.01f;
+        }
+        if(currentFireSize >= fireMaxSize)
+        {
+            fireRising = false;
+        }
+        else if(currentFireSize <= fireMinSize)
+        {
+            fireRising = true;
+        }
     }
     protected void renderScene()
     {//TODO: Render your scene here - remember that a scene graph will help you write this method! 
@@ -184,8 +213,9 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, FloatBuffer.wrap(rocketFrontDiffuse));
 
             // position and create the cylindrical part of the rocket
-            GL11.glTranslatef(0.0f,2.0f,-10f);
+            GL11.glTranslatef(0.0f,currentCylinderY,-10f);
             GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+            Colour.BLUE.submit();
             new Cylinder().draw(0.5f, 0.5f, 2.0f, 10, 10);
 
             GL11.glPopAttrib();
@@ -202,7 +232,7 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, FloatBuffer.wrap(rocketFrontDiffuse));
 
             // position and create the cone
-            GL11.glTranslatef(0.0f,2.0f,-10f);
+            GL11.glTranslatef(0.0f,currentConeY,-10f);
             GL11.glRotatef(90.0f,-1.0f, 0.0f, 0.0f);
             new Cylinder().draw(0.5f, 0.0f, 1.0f, 10, 10);
 
@@ -217,26 +247,33 @@ public class CS2150Coursework extends GraphicsLab
             float fireFrontEmission[]  = {0.5f, 0.26f, 0.0f, 1.0f};
             float fireFrontSpecular[] = {0.5f, 0.26f, 0.0f, 1.0f};
             float fireFrontDiffuse[]  = {0.5f, 0.26f, 0.0f, 1.0f};
-            GL11.glMaterial(GL11.GL_FRONT, GL11.GL_EMISSION, FloatBuffer.wrap(fireFrontEmission));
+            //GL11.glMaterial(GL11.GL_FRONT, GL11.GL_EMISSION, FloatBuffer.wrap(fireFrontEmission));
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(fireFrontSpecular));
             GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(fireFrontDiffuse));
 
             // position and create the fire
-            GL11.glTranslatef(0.0f,0.0f,-10f);
-            GL11.glRotatef(90.0f,1.0f, 0.0f, 0.0f);
+            GL11.glTranslatef(0.0f,currentFireY,-10f);
+            GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+            GL11.glScalef(1.0f, 1.0f, currentFireSize);
             new Cylinder().draw(0.25f, 0.0f, 1.0f, 10, 10);
 
             GL11.glPopAttrib();
         }
         GL11.glPopMatrix();
 
-        // draw the night sky
+        // draw the platform for the rocket
         GL11.glPushMatrix();
         {
-            Colour.WHITE.submit();
-            // position and create the skyff
-            GL11.glTranslatef(0.0f,0.0f,-5f);
-            GL11.glCallList(platList);
+            // set the colour to grey
+            float fireFrontSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+            float fireFrontDiffuse[]  = {0.5f, 0.5f, 0.5f, 1.0f};
+            GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(fireFrontSpecular));
+            GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(fireFrontDiffuse));
+
+            // position and create the platform
+            GL11.glScalef(8.0f,1.5f,1.0f);
+            GL11.glTranslatef(0.0f,-0.5f,-10f);
+            //GL11.glCallList(platList);
             GL11.glPopAttrib();
         }
         GL11.glPopMatrix();
@@ -318,6 +355,7 @@ public class CS2150Coursework extends GraphicsLab
             v2.submit();
             v1.submit();
         }
+        GL11.glEnd();
 
         // draw the top face
         top.submit();
@@ -328,6 +366,7 @@ public class CS2150Coursework extends GraphicsLab
             v5.submit();
             v8.submit();
         }
+        GL11.glEnd();
 
         // draw the bottom face
         bottom.submit();
@@ -338,6 +377,7 @@ public class CS2150Coursework extends GraphicsLab
             v1.submit();
             v2.submit();
         }
+        GL11.glEnd();
 
         // draw the left face
         left.submit();
@@ -348,6 +388,8 @@ public class CS2150Coursework extends GraphicsLab
             v1.submit();
             v4.submit();
         }
+        GL11.glEnd();
+
         // draw the right face
         right.submit();
         GL11.glBegin(GL11.GL_POLYGON);
@@ -357,6 +399,8 @@ public class CS2150Coursework extends GraphicsLab
             v3.submit();
             v2.submit();
         }
+        GL11.glEnd();
+
     }
 
 }
