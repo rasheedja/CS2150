@@ -17,6 +17,8 @@
  *  |   |
  *  |   +-- [Rx(90)] Cylinder
  *  |   |
+ *  |   +-- [S(1.5,2,1) Ry(currentFinAngle) T(0,-1,0) Fins
+ *  |   |
  *  |   +-- [S(1,1,currentFireSize) Rx(90) T(0,-2,0)] Fire
  *  |
  *  +--[S(8,1.5,1) T(0,-0.5,-10)] Platform
@@ -56,9 +58,18 @@ public class CS2150Coursework extends GraphicsLab
     private final int skyList       = 3;
     /** display list id for the platform. */
     private final int platList      = 4;
+    /** display list id for the rocket fins */
+    private final int finList       = 5;
 
-    /** the current position of the rocket. */
+    /** the current position of the rocket and it's highest position. */
     private float currentRocketY = 2.0f;
+    private float maxRocketY = 6.0f;
+
+    /** the current properties of the fins */
+    private float currentFinAngle = 0.0f;
+    private float maxFinAngle = 30.0f;
+    private float minFinAngle = -30.0f;
+    private boolean finRotatingPositive = true;
 
     /** the current position of the death star. */
     private float currentDeathStarX = 5.0f;
@@ -76,6 +87,8 @@ public class CS2150Coursework extends GraphicsLab
     private float currentFireRed = 0.25f;
     private float fireMinSize = 0.5f;
     private float fireMaxSize = 0.75f;
+    private float fireMinRedness = 0.25f;
+    private float fireMaxRedness = 0.4f;
     private boolean fireRising = true;
     private boolean increaseFireRedness = true;
 
@@ -108,11 +121,12 @@ public class CS2150Coursework extends GraphicsLab
 
         // create a dim light above the initial viewpoint.
         float diffuse0[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        float specular0[] = {1.0f, 1.0f, 1.0f, 1.0f};
         float ambient0[] = {0.1f, 0.1f, 0.1f, 1.0f};
         float position0[] = {0.0f, 10.0f, 0.0f, 1.0f};
         GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, FloatBuffer.wrap(ambient0));
         GL11.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, FloatBuffer.wrap(diffuse0));
-        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_SPECULAR, FloatBuffer.wrap(diffuse0));
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_SPECULAR, FloatBuffer.wrap(specular0));
         GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, FloatBuffer.wrap(position0));
         GL11.glEnable(GL11.GL_LIGHT0);
         GL11.glEnable(GL11.GL_LIGHTING);
@@ -136,10 +150,14 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEndList();
         GL11.glNewList(platList,GL11.GL_COMPILE);
         {
-            drawUnitFrustum(Colour.WHITE, Colour.WHITE, Colour.WHITE, Colour.WHITE, Colour.WHITE, Colour.WHITE);
+            drawUnitFrustum();
         }
         GL11.glEndList();
-
+        GL11.glNewList(finList,GL11.GL_COMPILE);
+        {
+            drawUnitTriangle();
+        }
+        GL11.glEndList();
     }
 
     /**
@@ -163,24 +181,25 @@ public class CS2150Coursework extends GraphicsLab
     protected void updateScene()
     {
         // turn off the animation when the rocket has reached the final spot
-        if(animating && currentRocketY > 6.0f)
+        if(animating && currentRocketY > maxRocketY)
         {
             animating = false;
         }
 
         // change the size of the fire
-        if(animating && fireRising && currentFireSize <= fireMaxSize)
+        if(animating && fireRising)
         {
             currentFireSize = currentFireSize + getAnimationScale();
         }
-        if(animating && !fireRising && currentFireSize > fireMinSize)
+        else if(animating && !fireRising)
         {
             currentFireSize = currentFireSize - getAnimationScale();
         }
         if(currentFireSize >= fireMaxSize)
         {
             fireRising = false;
-        } else if (currentFireSize <= fireMinSize)
+        }
+        else if (currentFireSize <= fireMinSize)
         {
             fireRising = true;
         }
@@ -191,26 +210,44 @@ public class CS2150Coursework extends GraphicsLab
             currentRocketY = currentRocketY + getAnimationScale();
 
             currentDeathStarX = currentDeathStarX - getAnimationScale();
-            currentDeathStarY = currentDeathStarY + getAnimationScale()/2;
+            currentDeathStarY = currentDeathStarY + getAnimationScale() / 2;
             currentDeathStarZ = currentDeathStarZ + getAnimationScale();
         }
 
         // change the colour/shininess of the fire
         if(animating && increaseFireRedness)
         {
-            currentFireRed = currentFireRed + getAnimationScale()/10;
+            currentFireRed = currentFireRed + getAnimationScale() / 10;
         }
-        if(animating && !increaseFireRedness)
+        else if(animating && !increaseFireRedness)
         {
-            currentFireRed = currentFireRed - getAnimationScale()/10;
+            currentFireRed = currentFireRed - getAnimationScale() / 10;
         }
-        if(currentFireRed > 0.4f)
+        if(currentFireRed > fireMaxRedness)
         {
             increaseFireRedness = false;
         }
-        if(currentFireRed < 0.25)
+        else if(currentFireRed < fireMinRedness)
         {
             increaseFireRedness = true;
+        }
+
+        // rotate the fins of the rocket
+        if(animating && finRotatingPositive)
+        {
+            currentFinAngle = currentFinAngle + getAnimationScale() * 30;
+        }
+        else if(animating && !finRotatingPositive)
+        {
+            currentFinAngle = currentFinAngle - getAnimationScale() * 30;
+        }
+        if(currentFinAngle >= maxFinAngle)
+        {
+            finRotatingPositive = false;
+        }
+        else if(currentFinAngle <= minFinAngle)
+        {
+            finRotatingPositive = true;
         }
 
         // move the camera up with the rocket
@@ -240,6 +277,7 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glScalef(25.0f, 1.0f, 25.0f);
             GL11.glCallList(groundList);
 
+            // reset texture and lighting changes
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glPopAttrib();
         }
@@ -261,6 +299,7 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glScalef(40.0f, 1.0f, 40.0f);
             GL11.glCallList(skyList);
 
+            // reset texture and lighting changes
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glPopAttrib();
         }
@@ -281,6 +320,7 @@ public class CS2150Coursework extends GraphicsLab
             GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
             GL11.glCallList(deathStarList);
 
+            // reset texture and lighting changes
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glPopAttrib();
         }
@@ -321,6 +361,22 @@ public class CS2150Coursework extends GraphicsLab
             }
             GL11.glPopMatrix();
 
+            // set the colour for the fins of the rocket to blue
+            float finFrontSpecular[] = {0.0f, 0.0f, 0.2f, 1.0f};
+            float finFrontDiffuse[]  = {0.0f, 0.0f, 0.2f, 1.0f};
+            GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, FloatBuffer.wrap(finFrontSpecular));
+            GL11.glMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE, FloatBuffer.wrap(finFrontDiffuse));
+
+            // position and create the fins for the rocket
+            GL11.glPushMatrix();
+            {
+                GL11.glTranslatef(0.0f, -1.0f, 0.0f);
+                GL11.glRotatef(currentFinAngle, 0.0f, 1.0f, 0.0f);
+                GL11.glScalef(1.5f, 2.0f, 1.0f);
+                GL11.glCallList(finList);
+            }
+            GL11.glPopMatrix();
+
             // set the colour of the fire to orange and make the fire glow when the rocket is flying
             float fireFrontEmissionOff[] = {0.0f, 0.0f, 0.0f, 1.0f};
             float fireFrontEmissionOn[]  = {currentFireRed, 0.13f, 0.0f, 1.0f};
@@ -342,7 +398,7 @@ public class CS2150Coursework extends GraphicsLab
                 GL11.glTranslatef(0.0f, -2.0f, 0.0f);
                 GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
                 GL11.glScalef(1.0f, 1.0f, currentFireSize);
-                new Cylinder().draw(0.25f, 0.0f, 1.0f, 10, 10);
+                new Cylinder().draw(0.25f, 0.0f, 1.0f, 15, 15);
             }
             GL11.glPopMatrix();
         }
@@ -366,8 +422,7 @@ public class CS2150Coursework extends GraphicsLab
     }
 
     /**
-     * Sets the initial camera for the scene and make sure that the camera is
-     * following the rocket
+     * Sets the initial camera for the scene and makes the camera follow the rocket once the animation has begun.
      */
     protected void setSceneCamera()
     {
@@ -382,13 +437,15 @@ public class CS2150Coursework extends GraphicsLab
     }
 
     /**
-     * Set all objects back to their defaults after they have been animated.
+     * Set the properties of all objects back to their default values after they have been animated.
      */
     private void resetAnimations()
     {
         currentRocketY = 2.0f;
         currentFireSize = 0.5f;
         currentFireRed = 0.25f;
+        currentFinAngle = 0.0f;
+        finRotatingPositive = true;
 
         currentDeathStarX = 5.0f;
         currentDeathStarY = 5.0f;
@@ -397,6 +454,25 @@ public class CS2150Coursework extends GraphicsLab
         currentCameraY = 0.0f;
 
         animating = false;
+    }
+
+    /**
+     * Draws a unit triangle.
+     */
+    public void drawUnitTriangle()
+    {
+        Vertex v1 = new Vertex(-0.5f,-0.5f, 0.0f); // left,   bottom
+        Vertex v2 = new Vertex( 0.5f,-0.5f, 0.0f); // right,  bottom
+        Vertex v3 = new Vertex( 0.0f, 0.5f, 0.0f); // middle, top
+
+        // draw the triangle
+        GL11.glBegin(GL11.GL_TRIANGLES);
+        {
+            v1.submit();
+            v2.submit();
+            v3.submit();
+        }
+        GL11.glEnd();
     }
 
     /**
@@ -414,13 +490,10 @@ public class CS2150Coursework extends GraphicsLab
         {
             GL11.glTexCoord2f(0.0f,0.0f);
             v1.submit();
-
             GL11.glTexCoord2f(1.0f,0.0f);
             v2.submit();
-
             GL11.glTexCoord2f(1.0f,1.0f);
             v3.submit();
-
             GL11.glTexCoord2f(0.0f,1.0f);
             v4.submit();
         }
@@ -428,16 +501,9 @@ public class CS2150Coursework extends GraphicsLab
     }
 
     /**
-     * Draws a unit frustum using the given colours for its 6 faces.
-     *
-     * @param near      Colour for the frustum's near face
-     * @param far       Colour for the frustum's far face
-     * @param top       Colour for the frustum's top face
-     * @param bottom    Colour for the frustum's bottom face
-     * @param left      Colour for the frustum's left face
-     * @param right     Colour for the frustum's right face
+     * Draws a unit frustum.
      */
-    public void drawUnitFrustum(Colour near, Colour far, Colour top, Colour bottom, Colour left, Colour right)
+    public void drawUnitFrustum()
     {
         Vertex v1 = new Vertex(-0.5f,-0.5f,-0.5f); // left,  back,  bottom
         Vertex v2 = new Vertex( 0.5f,-0.5f,-0.5f); // right, back,  bottom
@@ -449,7 +515,6 @@ public class CS2150Coursework extends GraphicsLab
         Vertex v8 = new Vertex( 0.3f, 0.5f, 0.5f); // right, front, top
 
         // draw the near face
-        near.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
             v5.submit();
@@ -460,7 +525,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEnd();
 
         // draw the far face
-        far.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
             v6.submit();
@@ -471,7 +535,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEnd();
 
         // draw the top face
-        top.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
             v7.submit();
@@ -482,7 +545,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEnd();
 
         // draw the bottom face
-        bottom.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
             v3.submit();
@@ -493,7 +555,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEnd();
 
         // draw the left face
-        left.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
             v5.submit();
@@ -504,7 +565,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEnd();
 
         // draw the right face
-        right.submit();
         GL11.glBegin(GL11.GL_POLYGON);
         {
             v7.submit();
