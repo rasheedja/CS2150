@@ -32,17 +32,87 @@ public class ShapeDesigner extends AbstractDesigner {
 	 * Main method
 	 **/
 	public static void main(String args[]) {
-		new ShapeDesigner().run(WINDOWED, "Designer", 0.01f);
+		new ShapeDesigner().run(WINDOWED, "Designer", 0.1f);
 	}
 
 	/**
 	 * Draw the shape
 	 **/
-	protected void drawUnitShape() {
+	protected void drawUnitShape()
+	{
+		Vertex v1 = new Vertex(-0.5f, -0.5f, -0.5f); // left,  back,  bottom
+		Vertex v2 = new Vertex(0.5f, -0.5f, -0.5f);  // right, back,  bottom
+		Vertex v3 = new Vertex(0.5f, -0.5f, 0.5f);   // right, front, bottom
+		Vertex v4 = new Vertex(-0.5f, -0.5f, 0.5f);  // left,  front, bottom
+		Vertex v5 = new Vertex(-0.3f, 0.5f, 0.5f);   // left,  front, top
+		Vertex v6 = new Vertex(-0.3f, 0.5f, -0.5f);  // left,  back,  top
+		Vertex v7 = new Vertex(0.3f, 0.5f, -0.5f); // right, back,  top
+		Vertex v8 = new Vertex(0.3f, 0.5f, 0.5f); // right, front, top
 
-        GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
-        GL11.glDisable(GL11.GL_LIGHTING);
+		// draw the near face
+		Colour.WHITE.submit();
+		GL11.glBegin(GL11.GL_POLYGON);
+		{
+			v5.submit();
+			v4.submit();
+			v3.submit();
+			v8.submit();
+		}
+		GL11.glEnd();
+
+		// draw the far face
         Colour.WHITE.submit();
-		new Cylinder().draw(10.0f, 10.0f, 50.0f, 10, 10);
+		GL11.glBegin(GL11.GL_POLYGON);
+		{
+			v6.submit();
+			v7.submit();
+			v2.submit();
+			v1.submit();
+		}
+        GL11.glEnd();
+
+		// draw the top face
+        Colour.WHITE.submit();
+		GL11.glBegin(GL11.GL_POLYGON);
+		{
+			v7.submit();
+			v6.submit();
+			v5.submit();
+			v8.submit();
+		}
+        GL11.glEnd();
+
+		// draw the bottom face
+        Colour.WHITE.submit();
+		GL11.glBegin(GL11.GL_POLYGON);
+		{
+			v3.submit();
+			v4.submit();
+			v1.submit();
+			v2.submit();
+		}
+        GL11.glEnd();
+
+		// draw the left face
+        Colour.WHITE.submit();
+		GL11.glBegin(GL11.GL_POLYGON);
+		{
+			v5.submit();
+			v6.submit();
+			v1.submit();
+			v4.submit();
+		}
+        GL11.glEnd();
+
+		// draw the right face
+        Colour.WHITE.submit();
+		GL11.glBegin(GL11.GL_POLYGON);
+		{
+			v7.submit();
+			v8.submit();
+			v3.submit();
+			v2.submit();
+		}
+        GL11.glEnd();
 	}
 }
