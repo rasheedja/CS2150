@@ -1,6 +1,6 @@
 /* CS2150Coursework.java
- * username: rasheeja
- * fullname: Junaid Ali Rasheed
+ * Username:  rasheeja
+ * Full name: Junaid Ali Rasheed
  *
  * Scene Graph:
  *  Scene origin
@@ -104,10 +104,6 @@ public class CS2150Coursework extends GraphicsLab
         new CS2150Coursework().run(WINDOWED,"CS2150 Coursework Submission",0.01f);
     }
 
-    /**
-     * Set up the initial scene and display lists.
-     * @throws Exception
-     */
     protected void initScene() throws Exception
     {
         // load the textures
@@ -160,9 +156,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glEndList();
     }
 
-    /**
-     * Performs actions when certain keys are pressed.
-     */
     protected void checkSceneInput()
     {
         if (Keyboard.isKeyDown(Keyboard.KEY_E))
@@ -175,9 +168,6 @@ public class CS2150Coursework extends GraphicsLab
         }
     }
 
-    /**
-     * Updates variables to make changes to the scene.
-     */
     protected void updateScene()
     {
         // turn off the animation when the rocket has reached the final spot
@@ -257,9 +247,6 @@ public class CS2150Coursework extends GraphicsLab
         }
     }
 
-    /**
-     * Draws objects and loads textures for the scene.
-     */
     protected void renderScene()
     {
         // draw the ground plane
@@ -421,9 +408,6 @@ public class CS2150Coursework extends GraphicsLab
         GL11.glPopMatrix();
     }
 
-    /**
-     * Sets the initial camera for the scene and makes the camera follow the rocket once the animation has begun.
-     */
     protected void setSceneCamera()
     {
         super.setSceneCamera();
