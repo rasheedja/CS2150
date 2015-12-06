@@ -17,9 +17,9 @@
  *  |   |
  *  |   +-- [Rx(90)] Cylinder
  *  |   |
- *  |   +-- [S(1,1,currentFireSize) Rx(90) T(0,-2,0)]
+ *  |   +-- [S(1,1,currentFireSize) Rx(90) T(0,-2,0)] Fire
  *  |
- *  +--[S(8,1.5,1) T(0,-0.5,-10)]
+ *  +--[S(8,1.5,1) T(0,-0.5,-10)] Platform
  */
 package coursework.rasheeja;
 
