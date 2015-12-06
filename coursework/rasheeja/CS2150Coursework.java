@@ -101,7 +101,7 @@ public class CS2150Coursework extends GraphicsLab
 
     public static void main(String args[])
     {
-        new CS2150Coursework().run(WINDOWED,"CS2150 Coursework Submission",0.01f);
+        new CS2150Coursework().run(WINDOWED,"To The Moon",0.01f);
     }
 
     protected void initScene() throws Exception
