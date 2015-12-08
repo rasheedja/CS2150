@@ -1,6 +1,8 @@
 /* CS2150Coursework.java
  * Username:  rasheeja
  * Full name: Junaid Ali Rasheed
+ * Course: CS2150
+ * Year: 2015-16
  *
  * Scene Graph:
  *  Scene origin
@@ -34,7 +36,8 @@ import GraphicsLab.*;
 
 /**
  * This submission shows a rocket flying upwards towards what looks like a moon but turns
- * out to be the Death Star from Star Wars. The animation ends on a cliff hanger.
+ * out to be the Death Star from Star Wars. The animation ends on a cliff hanger. All of
+ * the code in this class has been written by me.
  *
  * <p>Controls:
  * <ul>
@@ -47,6 +50,7 @@ import GraphicsLab.*;
  * </ul>
  *
  * @author Junaid Ali Rasheed
+ * @version 08/12/2015
  */
 public class CS2150Coursework extends GraphicsLab
 {
@@ -108,16 +112,19 @@ public class CS2150Coursework extends GraphicsLab
     {
         // load the textures
         deathStarTexture = loadTexture("coursework/rasheeja/textures/deathStar.jpg");
+        // source: http://media.meltybuzz.fr/article-1244974-square/stars-wars-etoile-maison-blanche.jpg
         grassTexture = loadTexture("coursework/rasheeja/textures/grass.jpg");
+        // source: http://free-basic.ru/user-images/texture_grass.jpg
         nightSkyTexture = loadTexture("coursework/rasheeja/textures/nightSky.png");
+        // source: http://opengameart.org/sites/default/files/zpos.png
 
         // create a very dim global ambient level
         float globalAmbient[]   = {0.1f,  0.1f,  0.1f, 1.0f};
         GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT,FloatBuffer.wrap(globalAmbient));
 
-        // create a dim light above the initial viewpoint.
-        float diffuse0[] = {1.0f, 1.0f, 1.0f, 1.0f};
-        float specular0[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        // create a white, dim light above the initial viewpoint.
+        float diffuse0[] = {0.7f, 0.7f, 0.7f, 1.0f};
+        float specular0[] = {0.7f, 0.7f, 0.7f, 1.0f};
         float ambient0[] = {0.1f, 0.1f, 0.1f, 1.0f};
         float position0[] = {0.0f, 10.0f, 0.0f, 1.0f};
         GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, FloatBuffer.wrap(ambient0));
@@ -472,6 +479,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the plane
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v1.toVector(), v2.toVector(), v3.toVector(), v4.toVector()).submit();
+
             GL11.glTexCoord2f(0.0f,0.0f);
             v1.submit();
             GL11.glTexCoord2f(1.0f,0.0f);
@@ -501,6 +510,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the near face
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v5.toVector(), v4.toVector(), v3.toVector(), v8.toVector()).submit();
+
             v5.submit();
             v4.submit();
             v3.submit();
@@ -511,6 +522,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the far face
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v6.toVector(), v7.toVector(), v2.toVector(), v1.toVector()).submit();
+
             v6.submit();
             v7.submit();
             v2.submit();
@@ -521,6 +534,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the top face
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v7.toVector(), v6.toVector(), v5.toVector(), v8.toVector()).submit();
+
             v7.submit();
             v6.submit();
             v5.submit();
@@ -531,6 +546,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the bottom face
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v3.toVector(), v4.toVector(), v1.toVector(), v2.toVector()).submit();
+
             v3.submit();
             v4.submit();
             v1.submit();
@@ -541,6 +558,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the left face
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v5.toVector(), v6.toVector(), v1.toVector(), v4.toVector()).submit();
+
             v5.submit();
             v6.submit();
             v1.submit();
@@ -551,6 +570,8 @@ public class CS2150Coursework extends GraphicsLab
         // draw the right face
         GL11.glBegin(GL11.GL_POLYGON);
         {
+            new Normal(v7.toVector(), v8.toVector(), v3.toVector(), v2.toVector()).submit();
+
             v7.submit();
             v8.submit();
             v3.submit();
